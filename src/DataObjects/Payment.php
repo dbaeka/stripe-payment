@@ -8,5 +8,5 @@ use Spatie\LaravelData\Optional;
 class Payment extends Data
 {
     public string|Optional $gateway;
-    public StripeMetadata|Optional $metadata;
+    public StripeMetadata|Optional $gateway_metadata;
 }

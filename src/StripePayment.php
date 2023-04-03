@@ -34,7 +34,7 @@ class StripePayment
             // Save Payment in Database
             $payment = new Payment();
             $payment->gateway = self::STRIPE_GATEWAY;
-            $payment->metadata = StripeMetadata::from(['token_id' => $stripe_token]);
+            $payment->gateway_metadata = StripeMetadata::from(['token_id' => $stripe_token]);
             return $this->payment_repo->updatePayment($payment_uuid, $payment);
         }
 
