@@ -1,0 +1,63 @@
+{
+  "name": "dbaeka/stripe-payment",
+  "description": "Package to accept payment using Stripe",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Dbaeka\\StripePayment\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Delmwin Baeka",
+      "email": "dbaekajnr@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "ext-json": "*",
+    "illuminate/contracts": "^10.0",
+    "illuminate/database": "^10.0",
+    "illuminate/console": "^10.5",
+    "spatie/laravel-data": "^3.2",
+    "illuminate/support": "^10.5",
+    "stripe/stripe-php": "^10.12"
+  },
+  "require-dev": {
+    "brianium/paratest": "6.*",
+    "fakerphp/faker": "^1.9.1",
+    "laravel/pint": "^1.6",
+    "mockery/mockery": "^1.4.4",
+    "nunomaduro/larastan": "^2.0",
+    "orchestra/testbench": "^7.0|^8.0",
+    "phpstan/phpstan-mockery": "^1.1",
+    "phpunit/phpunit": "^9.0",
+    "nunomaduro/phpinsights": "^2.8",
+    "dms/phpunit-arraysubset-asserts": "^0.4.0"
+  },
+  "minimum-stability": "stable",
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Dbaeka\\StripePayment\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Dbaeka\\StripePayment\\StripePaymentServiceProvider"
+      ]
+    }
+  },
+  "scripts": {
+    "test": "@php ./vendor/bin/phpunit",
+    "analyse": "@php ./vendor/bin/phpstan analyse --memory-limit 1G --configuration phpstan.neon.dist --ansi",
+    "pint": "@php ./vendor/bin/pint",
+    "insight": "@php ./vendor/bin/phpinsights",
+    "insight-action": "@php ./vendor/bin/phpinsights -n --ansi --format=github-action"
+  }
+}
