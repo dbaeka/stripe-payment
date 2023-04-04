@@ -7,5 +7,8 @@ return [
 
     //------------BINDING--------------------
     // Assign Class that Implements the StripeUpdatable contract here for automatic binding
-    'stripe_updatable' => null
+    'stripe_updatable' => null,
+
+    //-----------SUPPORTED CURRENCIES----------
+    'supported_currencies' => ['USD', 'EUR'],
 ];

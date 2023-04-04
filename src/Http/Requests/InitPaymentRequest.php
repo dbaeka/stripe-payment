@@ -8,7 +8,7 @@ use Illuminate\Validation\Rules\Enum;
 
 /**
  * @OA\Schema(
- *    schema="StripePaymentRequest",
+ *    schema="InitPaymentRequest",
  *    required={"payment_uuid", "type", "details"},
  *    @OA\Property(
  *     property="payment_uuid",
@@ -32,7 +32,7 @@ use Illuminate\Validation\Rules\Enum;
  *    ),
  * )
  */
-class StripePaymentRequest extends FormRequest
+class InitPaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
