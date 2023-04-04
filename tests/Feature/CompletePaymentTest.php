@@ -11,7 +11,7 @@ class CompletePaymentTest extends TestCase
 {
     public const PREFIX = 'api/v1/stripe/';
 
-    public function testCreateCreditCardPayment(): void
+    public function testCompleteSuccessfulPayment(): void
     {
         $endpoint = self::PREFIX . 'complete-payment';
         $data = [
@@ -23,25 +23,46 @@ class CompletePaymentTest extends TestCase
             'description' => fake()->sentence(),
             'amount' => fake()->randomFloat(2, 2)
         ];
-        $this->setupMocks($data['amount'], $data['currency']);
+        $this->setupMocks($data['amount'], $data['currency'], 'succeeded');
         $this->assertResponse($endpoint, $data);
     }
 
-    private function setupMocks(float $amount, string $currency): void
+    public function testCompletePaymentStillPending(): void
+    {
+        $endpoint = self::PREFIX . 'complete-payment';
+        $data = [
+            'payment_uuid' => fake()->uuid(),
+            'order_uuid' => fake()->uuid(),
+            'idempotency_key' => fake()->uuid(),
+            'token' => fake()->uuid(),
+            'currency' => 'eur',
+            'description' => fake()->sentence(),
+            'amount' => fake()->randomFloat(2, 2)
+        ];
+        $this->setupMocks($data['amount'], $data['currency'], 'pending');
+        $response = $this->postJson($endpoint, $data);
+        $response->assertUnprocessable();
+    }
+
+    private function setupMocks(float $amount, string $currency, string $status): void
     {
         $charge = [
             'id' => fake()->uuid(),
             'amount' => $amount,
             'currency' => $currency,
-            'status' => 'succeeded'
+            'status' => $status
         ];
-        $this->mock(StripeUpdatable::class)
-            ->shouldReceive('updateSuccess')
+        $mock = $this->mock(StripeUpdatable::class);
+        $mock->shouldReceive('updateSuccess')
             ->andReturn(Payment::from([
                 'gateway' => 'stripe',
                 'gateway_metadata' => ['charge' => $charge]
             ]));
-
+        $mock->shouldReceive('updateFailure')
+            ->andReturn(Payment::from([
+                'gateway' => 'stripe',
+                'gateway_metadata' => ['charge' => $charge]
+            ]));
         $this->mock(CreateCharge::class)
             ->shouldReceive('execute')
             ->andReturn($charge);
@@ -65,5 +86,21 @@ class CompletePaymentTest extends TestCase
             'type' => 'regular@test.com',
             'details' => 'secret',
         ])->assertUnprocessable();
+    }
+
+    public function testCompleteFailedPayment(): void
+    {
+        $endpoint = self::PREFIX . 'complete-payment';
+        $data = [
+            'payment_uuid' => fake()->uuid(),
+            'order_uuid' => fake()->uuid(),
+            'idempotency_key' => fake()->uuid(),
+            'token' => fake()->uuid(),
+            'currency' => 'eur',
+            'description' => fake()->sentence(),
+            'amount' => fake()->randomFloat(2, 2)
+        ];
+        $this->setupMocks($data['amount'], $data['currency'], 'failed');
+        $this->assertResponse($endpoint, $data);
     }
 }
