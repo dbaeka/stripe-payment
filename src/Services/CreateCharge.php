@@ -2,23 +2,24 @@
 
 namespace Dbaeka\StripePayment\Services;
 
-use Throwable;
+use Dbaeka\StripePayment\DataObjects\Charge;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Stripe\Service\ChargeService;
-use Illuminate\Support\Facades\Log;
 use Stripe\Service\WebhookEndpointService;
-use Dbaeka\StripePayment\DataObjects\Charge;
+use Throwable;
 
 class CreateCharge
 {
     public function __construct(
-        private readonly ChargeService $charge_client,
+        private readonly ChargeService          $charge_client,
         private readonly WebhookEndpointService $webhook_client
     ) {
         $webhook_url = config('stripe_payment.webhook_url');
-        if (!empty($webhook_url)) {
-            $this->registerWebhook($webhook_url);
+        if (empty($webhook_url)) {
+            $webhook_url = route('stripe.webhook');
         }
+        $this->registerWebhook($webhook_url);
     }
 
     private function registerWebhook(string $url): void

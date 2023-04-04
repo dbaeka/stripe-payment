@@ -13,5 +13,8 @@ return [
     'supported_currencies' => ['USD', 'EUR'],
 
     //-----------WEBHOOK URL----------------
-    'webhook_url' => url()->to('/') . 'api/v1/stripe/webhook'
+    'webhook_url' => null,
+
+    //-----------PAYMENT CONTROLLER MIDDLEWARES-------
+    'payment_middlewares' => []
 ];

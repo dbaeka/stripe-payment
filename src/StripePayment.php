@@ -6,12 +6,12 @@ use Spatie\LaravelData\Data;
 use Dbaeka\StripePayment\DataObjects\Charge;
 use Dbaeka\StripePayment\DataObjects\Payment;
 use Dbaeka\StripePayment\Services\CreateCharge;
-use Dbaeka\StripePayment\DataObjects\BankDetails;
 use Dbaeka\StripePayment\Services\CreateBankToken;
 use Dbaeka\StripePayment\Services\CreateCardToken;
 use Dbaeka\StripePayment\Contracts\StripeUpdatable;
 use Dbaeka\StripePayment\DataObjects\StripeMetadata;
 use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class StripePayment
 {
@@ -25,34 +25,37 @@ class StripePayment
     public function createPayment(string $payment_uuid, Data $details): ?Data
     {
         $stripe_token = $this->handleTokenCreate($details);
-        if ($stripe_token) {
-            // Save Payment in Database
-            $payment = new Payment();
-            $payment->gateway = self::STRIPE_GATEWAY;
-            $payment->gateway_metadata = StripeMetadata::from(['token_id' => $stripe_token]);
-            return $this->payment_repo->updatePayment($payment_uuid, $payment);
-        }
-        return null;
+        throw_if(empty($stripe_token), new UnprocessableEntityHttpException());
+        // Save Payment in Database
+        $payment = new Payment();
+        $payment->gateway = self::STRIPE_GATEWAY;
+        $payment->gateway_metadata = StripeMetadata::from(['token_id' => $stripe_token]);
+        return $this->payment_repo->updatePayment($payment_uuid, $payment);
     }
 
     private function handleTokenCreate(Data $details): ?string
     {
-        $stripe_token = null;
-        if ($details instanceof CreditCardDetails) {
-            $stripe_token = app(CreateCardToken::class)->execute($details);
-        } elseif ($details instanceof BankDetails) {
-            $stripe_token = app(CreateBankToken::class)->execute($details);
+        $service = $details instanceof CreditCardDetails ? app(CreateCardToken::class) :
+            app(CreateBankToken::class);
+        return $service->execute($details);
+    }
+
+    private function updatePayment(string $status, string $payment_uuid, Payment $payment): ?Data
+    {
+        if ($status === 'succeeded') {
+            return $this->payment_repo->updateSuccess($payment_uuid, $payment);
         }
-        return $stripe_token;
+        if ($status === 'failed') {
+            return $this->payment_repo->updateFailure($payment_uuid, $payment);
+        }
+        return null;
     }
 
     public function createCharge(Charge $details): ?Data
     {
         $charge_response = app(CreateCharge::class)->execute($details);
-        if ($charge_response) {
-            return $this->handleChargeResponse($charge_response, $details);
-        }
-        return null;
+        throw_if(empty($charge_response), new UnprocessableEntityHttpException());
+        return $this->handleChargeResponse($charge_response, $details);
     }
 
     /**
@@ -63,15 +66,26 @@ class StripePayment
         $charge = Charge::from($charge_response);
         /** @var string $payment_uuid */
         $payment_uuid = $details->payment_uuid;
+        /** @var string $order_uuid */
+        $order_uuid = $details->order_uuid;
+        /** @var string $status */
+        $status = $charge->status;
         $payment = new Payment();
         $payment->gateway = self::STRIPE_GATEWAY;
         $payment->gateway_metadata = StripeMetadata::from(['charge' => $charge]);
-        if ($charge->status === 'succeeded') {
-            return $this->payment_repo->updateSuccess($payment_uuid, $payment);
+        $payment->redirect_url = $this->getRedirectUrl($order_uuid, $status);
+        return $this->updatePayment($status, $payment_uuid, $payment);
+    }
+
+    private function getRedirectUrl(string $order_uuid, string $status): ?string
+    {
+        $redirect_url = null;
+        if ($status === 'succeeded') {
+            $redirect_url = url()->to('/') . "payment/{$order_uuid}/?status=success&gtw=stripe";
         }
-        if ($charge->status === 'failed') {
-            return $this->payment_repo->updateFailure($payment_uuid, $payment);
+        if ($status === 'failed') {
+            $redirect_url = url()->to('/') . "payment/{$order_uuid}/?status=failure&gtw=stripe";
         }
-        return null;
+        return $redirect_url;
     }
 }

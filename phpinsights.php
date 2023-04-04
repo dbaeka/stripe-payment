@@ -55,8 +55,7 @@ return [
         'src/StripePaymentServiceProvider.php',
         'phpinsights.php',
         'config',
-        'routes',
-        'tests'
+        'routes'
     ],
 
     'add' => [],

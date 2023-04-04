@@ -2,17 +2,17 @@
 
 namespace Dbaeka\StripePayment\Http\Controllers;
 
-use Dbaeka\StripePayment\StripePayment;
-use Dbaeka\StripePayment\Enums\PaymentType;
-use Dbaeka\StripePayment\DataObjects\Charge;
 use Dbaeka\StripePayment\DataObjects\BankDetails;
-use Illuminate\Routing\Controller as BaseController;
-use Dbaeka\StripePayment\Http\Resources\BaseResource;
+use Dbaeka\StripePayment\DataObjects\Charge;
 use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Dbaeka\StripePayment\Http\Requests\InitPaymentRequest;
+use Dbaeka\StripePayment\Enums\PaymentType;
 use Dbaeka\StripePayment\Http\Requests\CompletePaymentRequest;
+use Dbaeka\StripePayment\Http\Requests\InitPaymentRequest;
+use Dbaeka\StripePayment\Http\Resources\BaseResource;
+use Dbaeka\StripePayment\StripePayment;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
@@ -28,7 +28,8 @@ class StripePaymentController extends BaseController
 
     public function __construct()
     {
-        $this->middleware(config('stripe_payment.create-payment-middleware'))->only('createPayment');
+        $middlewares = config('stripe_payment.payment_middlewares');
+        $this->middleware($middlewares)->only('createPayment');
     }
 
     /**
@@ -55,7 +56,7 @@ class StripePaymentController extends BaseController
      */
     public function initPayment(
         InitPaymentRequest $request,
-        StripePayment $stripe_payment
+        StripePayment      $stripe_payment
     ): BaseResource {
         $data = $request->validated();
         $details = $data['details'];
@@ -92,7 +93,7 @@ class StripePaymentController extends BaseController
      */
     public function completePayment(
         CompletePaymentRequest $request,
-        StripePayment $stripe_payment
+        StripePayment          $stripe_payment
     ): BaseResource {
         $data = $request->validated();
         $details = Charge::from($data);

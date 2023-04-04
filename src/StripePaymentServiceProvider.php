@@ -61,6 +61,10 @@ class StripePaymentServiceProvider extends ServiceProvider
     {
         if (app()->runningInConsole()) {
             $this->publishes([
+                __DIR__ . '/../database/migrations' => database_path('migrations'),
+            ], 'migrations');
+
+            $this->publishes([
                 __DIR__ . '/../config/stripe_payment.php' => config_path('stripe_payment.php'),
             ], 'config');
         }
