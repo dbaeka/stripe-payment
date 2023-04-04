@@ -9,5 +9,5 @@ class Payment extends Data
 {
     public string|Optional $gateway;
     public StripeMetadata|Optional $gateway_metadata;
-    public string|Optional|null $redirect_url;
+    public string|Optional $redirect_url;
 }
