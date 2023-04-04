@@ -8,7 +8,7 @@ use Dbaeka\StripePayment\Services\CreateBankToken;
 use Dbaeka\StripePayment\Services\CreateCardToken;
 use Dbaeka\StripePayment\Tests\TestCase;
 
-class PaymentTest extends TestCase
+class InitPaymentTest extends TestCase
 {
     public const PREFIX = 'api/v1/stripe/';
 
@@ -35,7 +35,7 @@ class PaymentTest extends TestCase
             ->shouldReceive('updatePayment')
             ->andReturn(Payment::from([
                 'gateway' => 'stripe',
-                'metadata' => ['token_id' => 'test_token']
+                'gateway_metadata' => ['token_id' => 'test_token']
             ])->additional(['uuid' => $payment_uuid]));
 
         $this->mock(CreateCardToken::class)
@@ -56,7 +56,7 @@ class PaymentTest extends TestCase
         $response->assertOk()
             ->assertJsonStructure([
                 'success', 'error', 'errors',
-                'data' => ['uuid', 'gateway', 'metadata' => ['token_id']],
+                'data' => ['uuid', 'gateway', 'gateway_metadata' => ['token_id']],
             ])
             ->assertJsonFragment([
                 'success' => 1,
