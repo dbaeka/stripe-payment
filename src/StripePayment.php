@@ -19,8 +19,7 @@ class StripePayment
 
     public function __construct(
         private readonly StripeUpdatable $payment_repo
-    )
-    {
+    ) {
     }
 
     public function createPayment(string $payment_uuid, Data $details): ?Data
