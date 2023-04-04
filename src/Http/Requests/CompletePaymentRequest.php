@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * @OA\Schema(
- *    schema="InitPaymentRequest",
+ *    schema="CompletePaymentRequest",
  *    required={"payment_uuid", "order_uuid", "token", "description", "idempotency_key", "amount", "currency"},
  *    @OA\Property(
  *     property="payment_uuid",
