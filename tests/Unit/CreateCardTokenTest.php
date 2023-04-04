@@ -3,9 +3,9 @@
 namespace Dbaeka\StripePayment\Tests\Unit;
 
 use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
-use Dbaeka\StripePayment\Services\Client;
 use Dbaeka\StripePayment\Services\CreateCardToken;
 use Dbaeka\StripePayment\Tests\TestCase;
+use RuntimeException;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Service\TokenService;
 
@@ -21,11 +21,6 @@ class CreateCardTokenTest extends TestCase
                 "card" => []
             ])
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateCardToken::class);
         $data = CreditCardDetails::from([
             'cvv' => 100,
@@ -38,17 +33,22 @@ class CreateCardTokenTest extends TestCase
         $this->assertSame("tok_1Mshst2eZvKYlo2CKyQcTdTG", $token_id);
     }
 
+    public function testCreateFailsMissingSecretKey(): void
+    {
+        config([
+            'stripe_payment.secret_key' => '',
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        app(CreateCardToken::class);
+    }
+
     public function testCreateTokenFailFromInvalidResponse(): void
     {
         $mock = $this->mock(TokenService::class);
         $mock->shouldReceive('create')
             ->andReturn([])
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateCardToken::class);
         $data = CreditCardDetails::from([
             'cvv' => 100,
@@ -67,11 +67,6 @@ class CreateCardTokenTest extends TestCase
         $mock->shouldReceive('create')
             ->andThrow(ApiConnectionException::class)
             ->never();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateCardToken::class);
         $data = CreditCardDetails::from();
         $token_id = $service->execute($data);

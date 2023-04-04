@@ -52,8 +52,11 @@ return [
     */
 
     'exclude' => [
-        //  'path/to/directory-or-file'
-//        'src/Providers'
+        'src/StripePaymentServiceProvider.php',
+        'phpinsights.php',
+        'config',
+        'routes',
+        'tests'
     ],
 
     'add' => [],

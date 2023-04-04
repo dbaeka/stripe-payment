@@ -11,6 +11,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         parent::setUp();
         config([
             'stripe_payment.secret_key' => 'test_key',
+            'stripe_payment.webhook_url' => null
         ]);
     }
 

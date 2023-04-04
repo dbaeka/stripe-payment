@@ -3,11 +3,11 @@
 namespace Dbaeka\StripePayment\Tests\Unit;
 
 use Dbaeka\StripePayment\DataObjects\Charge;
-use Dbaeka\StripePayment\Services\Client;
 use Dbaeka\StripePayment\Services\CreateCharge;
 use Dbaeka\StripePayment\Tests\TestCase;
 use Stripe\Exception\ApiConnectionException;
 use Stripe\Service\ChargeService;
+use Stripe\Service\WebhookEndpointService;
 
 class CreateChargeTest extends TestCase
 {
@@ -19,11 +19,6 @@ class CreateChargeTest extends TestCase
         $mock->shouldReceive('create')
             ->andReturn($charge)
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getChargeService')
-            ->andReturn($mock);
-
         $service = app(CreateCharge::class);
         $data = Charge::from([
             'amount' => fake()->randomFloat(2, 2),
@@ -44,11 +39,6 @@ class CreateChargeTest extends TestCase
         $mock->shouldReceive('create')
             ->andReturn([])
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getChargeService')
-            ->andReturn($mock);
-
         $service = app(CreateCharge::class);
         $data = Charge::from([
             'amount' => fake()->randomFloat(2, 2),
@@ -67,14 +57,18 @@ class CreateChargeTest extends TestCase
         $mock->shouldReceive('create')
             ->andThrow(ApiConnectionException::class)
             ->never();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getChargeService')
-            ->andReturn($mock);
-
         $service = app(CreateCharge::class);
         $data = Charge::from();
         $charge_array = $service->execute($data);
         $this->assertEmpty($charge_array);
+    }
+
+    public function testRegistersWebhooks(): void
+    {
+        config(['stripe_payment.webhook_url' => 'http://example.com']);
+        $this->mock(WebhookEndpointService::class)
+            ->shouldReceive('create');
+        $service = app(CreateCharge::class);
+        $this->assertNotEmpty($service);
     }
 }

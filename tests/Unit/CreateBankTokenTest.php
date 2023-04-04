@@ -3,7 +3,6 @@
 namespace Dbaeka\StripePayment\Tests\Unit;
 
 use Dbaeka\StripePayment\DataObjects\BankDetails;
-use Dbaeka\StripePayment\Services\Client;
 use Dbaeka\StripePayment\Services\CreateBankToken;
 use Dbaeka\StripePayment\Tests\TestCase;
 use Stripe\Exception\ApiConnectionException;
@@ -21,11 +20,6 @@ class CreateBankTokenTest extends TestCase
                 "card" => []
             ])
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateBankToken::class);
         $data = BankDetails::from([
             'country' => fake()->countryCode(),
@@ -44,11 +38,6 @@ class CreateBankTokenTest extends TestCase
         $mock->shouldReceive('create')
             ->andReturn([])
             ->once();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateBankToken::class);
         $data = BankDetails::from([
             'country' => fake()->countryCode(),
@@ -67,11 +56,6 @@ class CreateBankTokenTest extends TestCase
         $mock->shouldReceive('create')
             ->andThrow(ApiConnectionException::class)
             ->never();
-
-        $this->mock(Client::class)
-            ->shouldReceive('getTokenService')
-            ->andReturn($mock);
-
         $service = app(CreateBankToken::class);
         $data = BankDetails::from();
         $token_id = $service->execute($data);

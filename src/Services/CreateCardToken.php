@@ -4,19 +4,20 @@ namespace Dbaeka\StripePayment\Services;
 
 use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
 use Illuminate\Support\Facades\Log;
+use Stripe\Service\TokenService;
 use Throwable;
 
 class CreateCardToken
 {
     public function __construct(
-        private readonly Client $client
+        private readonly TokenService $client
     ) {
     }
 
     public function execute(CreditCardDetails $data): ?string
     {
         try {
-            $response = $this->client->getTokenService()->create([
+            $response = $this->client->create([
                 'card' => [
                     'name' => $data->holder_name,
                     'number' => $data->number,

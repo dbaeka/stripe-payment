@@ -4,19 +4,20 @@ namespace Dbaeka\StripePayment\Services;
 
 use Dbaeka\StripePayment\DataObjects\BankDetails;
 use Illuminate\Support\Facades\Log;
+use Stripe\Service\TokenService;
 use Throwable;
 
 class CreateBankToken
 {
     public function __construct(
-        private readonly Client $client
+        private readonly TokenService $client
     ) {
     }
 
     public function execute(BankDetails $data): ?string
     {
         try {
-            $response = $this->client->getTokenService()->create([
+            $response = $this->client->create([
                 'bank_account' => [
                     'account_holder_type' => 'individual',
                     'account_holder_name' => $data->holder_name,

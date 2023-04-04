@@ -3,8 +3,12 @@
 namespace Dbaeka\StripePayment;
 
 use Dbaeka\StripePayment\Contracts\StripeUpdatable;
-use Dbaeka\StripePayment\Services\Client;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Stripe\Service\ChargeService;
+use Stripe\Service\TokenService;
+use Stripe\Service\WebhookEndpointService;
+use Stripe\StripeClient;
 
 class StripePaymentServiceProvider extends ServiceProvider
 {
@@ -19,15 +23,35 @@ class StripePaymentServiceProvider extends ServiceProvider
 
         $this->app->register('Spatie\LaravelData\LaravelDataServiceProvider');
 
-        $this->app->singleton(Client::class, function () {
-            return new Client(
-                secret_key: config('stripe_payment.secret_key'),
-            );
-        });
+        $this->bindStripeServices();
 
         if (!is_null(config('stripe_payment.stripe_updatable'))) {
             $this->app->bind(StripeUpdatable::class, config('stripe_payment.stripe_updatable'));
         }
+    }
+
+    private function bindStripeServices(): void
+    {
+        $this->app->bind(StripeClient::class, function () {
+            $secret_key = config('stripe_payment.secret_key');
+            throw_if(empty($secret_key));
+            return new StripeClient($secret_key);
+        });
+
+        $this->app->bind(TokenService::class, function (Application $app) {
+            $client = $app->make(StripeClient::class);
+            return new TokenService($client);
+        });
+
+        $this->app->bind(ChargeService::class, function (Application $app) {
+            $client = $app->make(StripeClient::class);
+            return new ChargeService($client);
+        });
+
+        $this->app->bind(WebhookEndpointService::class, function (Application $app) {
+            $client = $app->make(StripeClient::class);
+            return new WebhookEndpointService($client);
+        });
     }
 
     /**
