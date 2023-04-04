@@ -2,17 +2,17 @@
 
 namespace Dbaeka\StripePayment\Services;
 
-use Dbaeka\StripePayment\DataObjects\Charge;
-use Illuminate\Support\Facades\Log;
+use Throwable;
 use RuntimeException;
 use Stripe\Service\ChargeService;
+use Illuminate\Support\Facades\Log;
 use Stripe\Service\WebhookEndpointService;
-use Throwable;
+use Dbaeka\StripePayment\DataObjects\Charge;
 
 class CreateCharge
 {
     public function __construct(
-        private readonly ChargeService          $charge_client,
+        private readonly ChargeService $charge_client,
         private readonly WebhookEndpointService $webhook_client
     ) {
         $webhook_url = config('stripe_payment.webhook_url');
@@ -37,7 +37,6 @@ class CreateCharge
         }
     }
 
-
     /**
      * @return array<string,mixed>|null
      */
@@ -51,7 +50,7 @@ class CreateCharge
                 'description' => $data->description,
                 'metadata' => [
                     'payment_uuid' => $data->payment_uuid ?? '',
-                    'order_uuid' => $data->order_uuid ?? ''
+                    'order_uuid' => $data->order_uuid ?? '',
                 ],
             ], [
                 'idempotency_key' => $data->idempotency_key,

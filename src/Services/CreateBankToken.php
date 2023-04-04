@@ -2,10 +2,10 @@
 
 namespace Dbaeka\StripePayment\Services;
 
-use Dbaeka\StripePayment\DataObjects\BankDetails;
-use Illuminate\Support\Facades\Log;
-use Stripe\Service\TokenService;
 use Throwable;
+use Stripe\Service\TokenService;
+use Illuminate\Support\Facades\Log;
+use Dbaeka\StripePayment\DataObjects\BankDetails;
 
 class CreateBankToken
 {

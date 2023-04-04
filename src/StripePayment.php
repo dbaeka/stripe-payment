@@ -2,16 +2,16 @@
 
 namespace Dbaeka\StripePayment;
 
-use Dbaeka\StripePayment\Contracts\StripeUpdatable;
-use Dbaeka\StripePayment\DataObjects\BankDetails;
+use Spatie\LaravelData\Data;
 use Dbaeka\StripePayment\DataObjects\Charge;
-use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
 use Dbaeka\StripePayment\DataObjects\Payment;
-use Dbaeka\StripePayment\DataObjects\StripeMetadata;
+use Dbaeka\StripePayment\Services\CreateCharge;
+use Dbaeka\StripePayment\DataObjects\BankDetails;
 use Dbaeka\StripePayment\Services\CreateBankToken;
 use Dbaeka\StripePayment\Services\CreateCardToken;
-use Dbaeka\StripePayment\Services\CreateCharge;
-use Spatie\LaravelData\Data;
+use Dbaeka\StripePayment\Contracts\StripeUpdatable;
+use Dbaeka\StripePayment\DataObjects\StripeMetadata;
+use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
 
 class StripePayment
 {

@@ -2,8 +2,8 @@
 
 namespace Dbaeka\StripePayment\Contracts;
 
-use Dbaeka\StripePayment\DataObjects\Payment;
 use Spatie\LaravelData\Data;
+use Dbaeka\StripePayment\DataObjects\Payment;
 
 interface StripeUpdatable
 {

@@ -2,17 +2,17 @@
 
 namespace Dbaeka\StripePayment\Http\Controllers;
 
-use Dbaeka\StripePayment\DataObjects\BankDetails;
-use Dbaeka\StripePayment\DataObjects\Charge;
-use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
-use Dbaeka\StripePayment\Enums\PaymentType;
-use Dbaeka\StripePayment\Http\Requests\CompletePaymentRequest;
-use Dbaeka\StripePayment\Http\Requests\InitPaymentRequest;
-use Dbaeka\StripePayment\Http\Resources\BaseResource;
 use Dbaeka\StripePayment\StripePayment;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
+use Dbaeka\StripePayment\Enums\PaymentType;
+use Dbaeka\StripePayment\DataObjects\Charge;
+use Dbaeka\StripePayment\DataObjects\BankDetails;
 use Illuminate\Routing\Controller as BaseController;
+use Dbaeka\StripePayment\Http\Resources\BaseResource;
+use Dbaeka\StripePayment\DataObjects\CreditCardDetails;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Dbaeka\StripePayment\Http\Requests\InitPaymentRequest;
+use Dbaeka\StripePayment\Http\Requests\CompletePaymentRequest;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
@@ -55,7 +55,7 @@ class StripePaymentController extends BaseController
      */
     public function initPayment(
         InitPaymentRequest $request,
-        StripePayment      $stripe_payment
+        StripePayment $stripe_payment
     ): BaseResource {
         $data = $request->validated();
         $details = $data['details'];
@@ -92,7 +92,7 @@ class StripePaymentController extends BaseController
      */
     public function completePayment(
         CompletePaymentRequest $request,
-        StripePayment          $stripe_payment
+        StripePayment $stripe_payment
     ): BaseResource {
         $data = $request->validated();
         $details = Charge::from($data);

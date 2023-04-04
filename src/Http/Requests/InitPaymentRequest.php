@@ -2,9 +2,9 @@
 
 namespace Dbaeka\StripePayment\Http\Requests;
 
+use Illuminate\Validation\Rules\Enum;
 use Dbaeka\StripePayment\Enums\PaymentType;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
 /**
  * @OA\Schema(
