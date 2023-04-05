@@ -29,7 +29,7 @@ class StripePaymentController extends BaseController
     public function __construct()
     {
         $middlewares = config('stripe_payment.payment_middlewares');
-        $this->middleware($middlewares)->only('createPayment');
+        $this->middleware($middlewares)->only(['initPayment', 'completePayment']);
     }
 
     /**
